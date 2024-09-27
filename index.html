@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudos de Desenvolvimento Web</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="queries.css">
+    <link rel="shortcut icon" href="ico/favicon.ico" type="image/x-icon">
+    <script src="https://kit.fontawesome.com/29dd473d90.js" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9360124149047745"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Estudos de Desenvolvimento Web</h1>
+            <nav class="header-links">
+                <a href="index.html">Back-End</a> <!-- Link para a página atual -->
+                <a href="front-end.html">Front-End</a> <!-- Link para a nova página -->
+            </nav>
+            <button class="menu-toggle" aria-label="Abrir Menu">&#9776;</button> <!-- Botão de Menu -->
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#step1">Configurando o Maven</a></li>
+                <li><a href="#step2">Desenvolvimento</a></li>
+                <li><a href="#order">Ordem dos Pacotes</a></li>
+                <li><a href="#package">Relação entre os pacotes</a></li>
+                <li><a href="#springSecurity">Spring Security</a></li>
+                <li><a href="#jwt">O que é JWT?</a></li>
+                <li><a href="#validation">Spring Validation</a></li>
+                <li><a href="#type">Relacionamento de entidades</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="container">
+        <main class="content">
+            <section id="step1">
+                <h2>Configurando o Maven</h2>
+
+                <h3>Criação do Projeto</h3>
+                <ul>
+                    <li>Vá até o site <a href="https://start.spring.io" target="_blank"><strong>Spring
+                                Initializr</strong></a></li>
+                    <li>Selecione as seguintes opções:
+                        <ul>
+                            <li><strong>Project:</strong> Maven Project</li>
+                            <li><strong>Language:</strong> Java</li>
+                            <li><strong>Spring Boot Version:</strong> 3.3.4</li>
+                            <li><strong>Packaging:</strong> Jar</li>
+                            <li><strong>Java Version:</strong> 17</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>Dependências que você deve selecionar</h4>
+                <ul>
+                    <li><strong>Spring Boot DevTools</strong>: para facilitar o desenvolvimento com hot-reloading.</li>
+                    <li><strong>Lombok</strong>: reduz a necessidade de boilerplate no código (como getters, setters).
+                    </li>
+                    <li><strong>Spring Web</strong>: necessário para criar APIs RESTful.</li>
+                    <li><strong>Thymeleaf</strong>: para criar templates de front-end (no futuro).</li>
+                    <li><strong>Spring Security</strong>: para adicionar segurança como login e autorização.</li>
+                    <li><strong>Spring Data JPA</strong>: para interação com banco de dados relacional.</li>
+                    <li><strong>Flyway Migration</strong>: para controle de versões no banco de dados.</li>
+                    <li><strong>MySQL Driver</strong>: para conectar com o banco MySQL.</li>
+                    <li><strong>Validation</strong>: para validar dados de entrada de forma eficiente.</li>
+                </ul>
+
+                <h3>Estrutura do Projeto</h3>
+                <pre><code>
+src
+├── main
+│   ├── java
+│   │   └── br/edu/ifpe/webbackend
+│   │       ├── controller
+│   │       ├── model
+│   │       ├── repository
+│   │       └── service
+│   └── resources
+│       ├── static
+│       ├── templates
+│       └── application.properties
+├── test
+└── pom.xml</code></pre>
+            </section>
+
+            <section id="step2">
+                <h2>Desenvolvimento</h2>
+
+                <h3>application.properties</h3>
+                <p>Configure o arquivo <mark>application.properties</mark> para conectar-se ao MySQL e habilitar o
+                    Flyway para migração de banco de dados.</p>
+
+                <h4>Exemplo de configuração:</h4>
+                <pre><code>
+spring.datasource.url=jdbc:mysql://localhost:3306/nome_do_banco
+spring.datasource.username=root
+spring.datasource.password=senha
+
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+
+# Configuração do Flyway
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+                </code></pre>
+
+                <h3>Model (Entidades)</h3>
+                <p>Cada entidade representa uma tabela no banco de dados. Vamos criar um exemplo de entidade simples
+                    usando Lombok para gerar getters e setters automaticamente.</p>
+                <pre><code>
+package br.edu.ifpe.webbackend.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String password;
+}
+                </code></pre>
+
+                <h3>Repository (Interface de Acesso ao Banco de Dados)</h3>
+                <p>O Spring Data JPA gera a implementação automaticamente quando você define uma interface que estende a
+                    <mark>JpaRepository</mark>.
+                </p>
+                <pre><code>
+package br.edu.ifpe.webbackend.repository;
+
+import br.edu.ifpe.webbackend.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    // Você pode adicionar métodos de consulta personalizada aqui
+    User findByEmail(String email);
+}
+                </code></pre>
+
+                <h3>Service (Lógica de Negócio)</h3>
+                <p>A camada de serviço realiza as operações de negócio e conversa com a camada de repositório.</p>
+                <pre><code>
+package br.edu.ifpe.webbackend.service;
+
+import br.edu.ifpe.webbackend.model.User;
+import br.edu.ifpe.webbackend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+}
+                </code></pre>
+
+                <h3>Controller (Endpoints REST)</h3>
+                <p>Aqui, criamos os endpoints que serão acessados via HTTP. O Controller depende da camada de serviço
+                    para realizar as operações de banco de dados.</p>
+                <pre><code>
+package br.edu.ifpe.webbackend.controller;
+
+import br.edu.ifpe.webbackend.model.User;
+import br.edu.ifpe.webbackend.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.ok(savedUser);
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        User user = userService.findByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+}
+                </code></pre>
+
+                <h3>Flyway para Migração de Banco de Dados</h3>
+                <p>O Flyway ajuda a manter o controle de versões do esquema do banco de dados. Crie um arquivo de
+                    migração no diretório <mark>src/main/resources/db/migration.</mark></p>
+                <pre><code>
+src/main/resources/db/migration/V1__Initial_Setup.sql
+                </code></pre>
+                <pre><code>
+CREATE TABLE user (
+   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   email VARCHAR(255) NOT NULL UNIQUE,
+   password VARCHAR(255) NOT NULL
+);                    
+                </code></pre>
+
+                <h3>Próximos Passos</h3>
+
+                <h4>Executar o Projeto</h4>
+                <p>Agora que o projeto está configurado, você pode rodá-lo diretamente na sua IDE. Certifique-se de que
+                    o banco de dados MySQL esteja rodando.</p>
+
+                <h4>Testar Endpoints</h4>
+                <p>Teste os endpoints usando o Postman ou Insomnia, enviando requisições para
+                    <mark>localhost:8080/api/users.</mark>
+                </p>
+            </section>
+
+            <section id="order">
+                <h2>Ordem Sugerida para Criação dos Pacotes</h2>
+                <p>Embora não haja uma ordem fixa e obrigatória para criar os pacotes no Spring Boot, seguir uma
+                    sequência lógica pode facilitar o processo de desenvolvimento, especialmente para entendimento e
+                    manutenção. A sequência sugerida baseia-se no fluxo de dados e na forma como os pacotes se
+                    relacionam no sistema.</p>
+
+                <h3>Model (Entidades)</h3>
+                <p>Começar pelas entidades é um bom ponto de partida porque elas representam os objetos principais do
+                    seu sistema e o modelo de dados que você vai usar. Com as entidades definidas, você já sabe como
+                    será o formato das tabelas no banco de dados, o que facilitará a configuração dos outros pacotes.
+                </p>
+
+                <p>Por que começar aqui?: A camada <mark>model</mark> define as estruturas de dados e as regras de
+                    mapeamento (via JPA) que serão usadas pelas outras camadas, como <mark>repository</mark> e
+                    <mark>service</mark>.
+                </p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String email;
+    private String password;
+}
+                </code></pre>
+
+                <h3>Repository</h3>
+                <p>Após criar as entidades, você pode definir os repositórios que irão lidar com a persistência no banco
+                    de dados. O repositório interage diretamente com as tabelas representadas pelas entidades.</p>
+
+                <p>Por que este pacote é o próximo?: O repositório depende das entidades para mapear os dados do banco
+                    de dados e fornecer operações de CRUD (Create, Read, Update, Delete).</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByEmail(String email);
+}
+                </code></pre>
+
+                <h3>Service</h3>
+                <p>Com as entidades e repositórios definidos, você pode implementar a lógica de negócios. O serviço age
+                    como uma camada intermediária entre o controlador e o repositório, encapsulando a lógica do sistema.
+                </p>
+
+                <p>Por que este pacote vem agora?: A camada de serviço depende das entidades e do repositório para
+                    manipular dados e aplicar regras de negócio. Essa camada garante que o controlador tenha uma
+                    interface limpa e fácil para chamar as operações do sistema.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+}
+                </code></pre>
+
+                <h3>Controller</h3>
+                <p>Agora que você tem as entidades, repositórios e lógica de negócio no lugar, pode criar o controlador.
+                    O controlador será responsável por expor os endpoints REST que interagem com os serviços, processam
+                    as requisições HTTP e retornam as respostas apropriadas.</p>
+
+                <p>Por que deixar o controlador para o final?: O controlador precisa das camadas anteriores
+                    (<mark>service</mark>, <mark>repository</mark> e <mark>model</mark>) para processar as requisições.
+                    Se o controlador for criado antes das entidades e serviços, você pode ter dificuldades para definir
+                    os endpoints, já que eles dependem das regras e objetos de negócio que ainda não foram criados.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.ok(savedUser);
+    }
+}
+                </code></pre>
+
+                <h3>Fluxo de Desenvolvimento Proposto</h3>
+                <ul>
+                    <li><strong>Model (Entidades)</strong>: Define a estrutura de dados e as regras de mapeamento.</li>
+                    <li><strong>Repository</strong>: Interface de comunicação com o banco de dados, utilizando as
+                        entidades do <mark>model</mark>.</li>
+                    <li><strong>Service</strong>: Implementa a lógica de negócio, utilizando os métodos definidos no
+                        <mark>repository</mark>.
+                    </li>
+                    <li><strong>Controller</strong>: Define os endpoints REST, utilizando os serviços para processar as
+                        requisições.</li>
+                </ul>
+
+                <h3>Razões para essa Ordem</h3>
+
+                <h4>Dependência entre Pacotes</h4>
+                <p>Cada camada depende de outra. O repositório depende das entidades, o serviço depende do repositório,
+                    e o controlador depende do serviço.</p>
+
+                <h4>Organização do Pensamento</h4>
+                <p>Seguindo essa ordem, você desenvolve o projeto com uma progressão lógica, evitando confusão ao
+                    definir endpoints sem ter as estruturas de dados e regras de negócio bem estabelecidas.</p>
+
+                <h3>Dicas Adicionais</h3>
+
+                <h4>Teste ao longo do processo</h4>
+                <p>À medida que cria cada camada, teste suas funcionalidades isoladamente. Por exemplo, após criar o
+                    repositório, faça um teste para garantir que os dados estão sendo armazenados corretamente no banco.
+                </p>
+
+                <h4>Migração do banco com Flyway</h4>
+                <p>Após criar as entidades no model, você pode configurar o Flyway para gerar as migrações
+                    automaticamente.</p>
+
+                <h3>Exemplo Prático</h3>
+                <ul>
+                    <li>Crie a entidade <mark>User</mark> (no pacote <mark>model</mark>).</li>
+                    <li>Implemente o repositório <mark>UserRepository</mark> para interagir com o banco.</li>
+                    <li>Desenvolva o serviço <mark>UserService</mark> para encapsular as operações de CRUD e regras de
+                        negócio.</li>
+                    <li>Implemente o controlador <mark>UserController</mark>, que fornecerá os endpoints para o frontend
+                        ou clientes externos.</li>
+                </ul>
+                <p>Ao seguir essa ordem, o fluxo de dados é mais claro e você evita problemas de dependências ausentes
+                    ou mal definidas.</p>
+
+                <h3>Package model (Entidades)</h3>
+
+                <h4>O que colocar aqui:</h4>
+
+                <p>Entidades (ou Modelos): As classes que representam os objetos principais do sistema e mapeiam
+                    diretamente para tabelas no banco de dados. Cada entidade será anotada com <mark>@Entity</mark>, e
+                    as colunas da tabela são representadas pelos atributos da classe.</p>
+
+                <p>Anotações JPA: Você pode adicionar anotações como <mark>@Id</mark>, <mark>@GeneratedValue</mark>,
+                    <mark>@Column</mark>, <mark>@ManyToOne</mark>, <mark>@OneToMany</mark>, etc., para definir
+                    relacionamentos e características das colunas da tabela.
+                </p>
+
+                <p>Regra principal: Apenas classes que representam objetos do domínio (como <mark>User</mark>,
+                    <mark>Product</mark>, <mark>Order</mark>, etc.).
+                </p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @NotNull
+    private String name;
+
+    @Email
+    private String email;
+
+    private String password;
+
+    // Getters, Setters, Construtores
+}
+                </code></pre>
+                <h4>O que não colocar aqui:</h4>
+                <p>Lógica de negócios: A camada <mark>model</mark> deve ser apenas a representação dos dados. Lógica de
+                    negócio e validações complexas pertencem à camada de <mark>service</mark>.</p>
+                <p>Código de persistência (ex: salvar no banco): Isso é responsabilidade do <mark>repository</mark>.</p>
+
+                <h3>Package repository (Repositórios)</h3>
+
+                <h4>O que colocar aqui:</h4>
+                <p>Interfaces de repositório: Interfaces que estendem <mark>JpaRepository</mark> ou
+                    <mark>CrudRepository</mark> do Spring Data JPA. Essas interfaces são responsáveis pela comunicação
+                    com o banco de dados.
+                </p>
+                <p>Consultas personalizadas: Se você precisar de consultas SQL específicas, pode usar métodos de
+                    nomeação (<mark>findBy</mark>, <mark>countBy</mark>, etc.) ou <mark>@Query</mark> para consultas
+                    customizadas.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+}
+                </code></pre>
+
+                <h4>O que não colocar aqui:</h4>
+                <p>Lógica de negócio: O repositório deve apenas fornecer métodos para acessar e manipular dados (CRUD).
+                    A lógica de como os dados são manipulados pertence ao <mark>service</mark>.</p>
+                <p>Entidades: O repositório não deve conter definições de entidades. Ele apenas interage com as
+                    entidades criadas no <mark>model</mark>.</p>
+
+                <h3>Package service (Serviços)</h3>
+
+                <h4>O que colocar aqui:</h4>
+                <p>Classes de serviço: Contêm a lógica de negócio do sistema. O serviço atua como uma camada
+                    intermediária entre o controlador e o repositório.</p>
+                <p>Operações complexas: A lógica de como os dados devem ser processados antes de serem salvos ou
+                    buscados no banco de dados.</p>
+                <p>Validações: Validações complexas ou qualquer lógica que envolve mais de uma entidade.</p>
+                <p>Transações: O serviço também pode controlar transações, usando @Transactional quando necessário para
+                    garantir que as operações no banco de dados sejam atômicas.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User createUser(User user) {
+        // Lógica de validação e regras de negócios
+        return userRepository.save(user);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+}
+                </code></pre>
+
+                <h4>O que não colocar aqui:</h4>
+                <p>Acesso direto ao banco de dados: Toda manipulação de dados deve ser feita através do
+                    <mark>repository</mark>.
+                </p>
+                <p>Endereços de API (como /users): Isso pertence à camada <mark>controller</mark>.</p>
+
+                <h3>Package controller (Controladores)</h3>
+
+                <h4>O que colocar aqui:</h4>
+                <p>Controladores REST: Classes anotadas com <mark>@RestController</mark> que definem os endpoints da API
+                    e tratam requisições HTTP (GET, POST, PUT, DELETE).</p>
+                <p>nterações com serviços: O controlador chama os métodos dos serviços para processar as requisições
+                    recebidas e devolver respostas apropriadas.</p>
+                <p>Validação de entrada: O controlador também pode validar os dados recebidos, usando anotações como
+                    @Valid para garantir que os dados recebidos estão no formato correto.</p>
+                <pre><code>
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
+        User newUser = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    }
+}
+                </code></pre>
+
+                <h4>O que não colocar aqui:</h4>
+                <p>Lógica de negócios: O controlador não deve conter lógica de como os dados são processados ou
+                    manipulados. Essa é a função do <mark>service</mark>.</p>
+                <p>Acesso direto ao banco de dados: O controlador deve sempre usar a camada de <mark>service</mark> para
+                    obter ou salvar dados.</p>
+
+                <h3>Package security (Segurança)</h3>
+
+                <h4>O que colocar aqui:</h4>
+                <p>Configurações de segurança: Classes de configuração do Spring Security para definir como a
+                    autenticação e autorização serão tratadas.</p>
+                <p>Filtros de segurança: Se você precisar implementar um filtro personalizado para JWT ou outra
+                    autenticação, ele ficará neste pacote.</p>
+                <p>Serviços de autenticação: Qualquer lógica de autenticação de usuário, como
+                    <mark>UserDetailsService</mark> ou gerenciamento de tokens.
+                </p>
+                <pre><code>
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+            .antMatchers("/api/users/**").authenticated()
+            .and()
+            .formLogin();
+    }
+}
+                </code></pre>
+
+                <h4>O que não colocar aqui:</h4>
+                <p>Controle de acesso específico de domínio: O pacote de <mark>security</mark> deve ser reservado para a
+                    infraestrutura de segurança. A lógica de como o acesso é controlado por função (Role) pode ser
+                    manipulada no <mark>service</mark>.</p>
+
+                <h3>Outros pacotes comuns:</h3>
+
+                <h4><mark>dto</mark> (Data Transfer Objects):</h4>
+
+                <p>Contém classes que são usadas para transferir dados entre o cliente e o servidor. Diferente das
+                    entidades, os DTOs não mapeiam diretamente para tabelas no banco de dados. Eles servem para carregar
+                    informações entre camadas sem expor diretamente as entidades.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+public class UserDTO {
+    private String name;
+    private String email;
+    // construtores, getters e setters
+}
+                </code></pre>
+
+                <h4><mark>exception</mark> (Exceções personalizadas):</h4>
+
+                <p>Contém classes de exceção personalizadas, geralmente usadas para tratar erros específicos e retornar
+                    respostas amigáveis aos clientes.</p>
+
+                <h4>Exemplo:</h4>
+                <pre><code>
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String message) {
+        super(message);
+    }
+}
+                </code></pre>
+
+                <h3>Resumo</h3>
+
+                <ul>
+                    <li><strong>Model:</strong> Representa as entidades e estruturas de dados.</li>
+                    <li><strong>Repository:</strong> Acesso ao banco de dados, implementa operações CRUD.</li>
+                    <li><strong>Service:</strong> Lógica de negócios, manipulação dos dados e regras do sistema.</li>
+                    <li><strong>Controller:</strong> Exposição de endpoints para interações externas, como APIs REST.
+                    </li>
+                    <li><strong>Security:</strong> Configurações de autenticação e autorização.</li>
+                </ul>
+                <p>Essa organização facilita a manutenção do projeto e previne erros durante a execução, pois cada
+                    camada tem uma responsabilidade clara.</p>
+
+                <h3>Package Model</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote é onde você define as entidades que representam as
+                        tabelas do banco de dados, bem como os objetos de transferência de dados (DTOs).</li>
+                </ul>
+                <h4>Conteúdo Comum</h4>
+                <ul>
+                    <li><strong>Entidades:</strong> Classes que representam suas tabelas do banco de dados.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>User.java</mark></li>
+                    </ul>
+                    <li><strong>DTOs:</strong> Classes que representam dados que você quer transferir entre o cliente e
+                        o servidor, especialmente em operações de API.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>UserDTO.java</mark>, <mark>AuthRequest.java</mark>,
+                            <mark>AuthResponse.java</mark></li>
+                    </ul>
+                </ul>
+                <h4>Exemplo de Estrutura no Package Model</h4>
+                <pre><code>
+model/
+ ├── User.java          // Entidade
+ ├── UserDTO.java      // DTO para operações de usuário
+ ├── AuthRequest.java   // DTO para requisições de autenticação
+ └── AuthResponse.java  // DTO para respostas de autenticação                   
+                </code></pre>
+
+                <h3>Package Service</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote é responsável pela lógica de negócios da aplicação. Ele
+                        contém classes que implementam as regras de negócios e interagem com o repositório.</li>
+                </ul>
+                <h4>Conteúdo Comum</h4>
+                <ul>
+                    <li><strong>Serviços de Usuário:</strong> Lida com a lógica relacionada aos usuários.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>UserService.java</mark></li>
+                    </ul>
+                    <li><strong>Serviços de Autenticação:</strong> Lida com a lógica relacionada à autenticação.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>AuthService.java</mark></li>
+                    </ul>
+                </ul>
+                <h4>Exemplo de Estrutura no Package Service</h4>
+                <pre><code>
+service/
+ ├── UserService.java   // Lógica de negócios para usuários
+ └── AuthService.java   // Lógica de negócios para autenticação
+                </code></pre>
+
+                <h3>Package Controller</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote é responsável por lidar com as requisições HTTP. Ele
+                        define os endpoints da API e controla o fluxo de dados entre a camada de apresentação e a lógica
+                        de negócios.</li>
+                </ul>
+                <h4>Conteúdo Comum</h4>
+                <ul>
+                    <li><strong>Controladores de Usuário:</strong> Lida com requisições relacionadas a usuários.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>UserController.java</mark></li>
+                    </ul>
+                    <li><strong>Controladores de Autenticação:</strong> Lida com requisições relacionadas à
+                        autenticação.</li>
+                    <ul>
+                        <li><strong>Exemplo:</strong> <mark>AuthController.java</mark></li>
+                    </ul>
+                </ul>
+                <h4>Exemplo de Estrutura no Package Controller</h4>
+                <pre><code>
+controller/
+ ├── UserController.java // Endpoints para operações de usuário
+ └── AuthController.java  // Endpoints para operações de autenticação
+                </code></pre>
+
+                <h3>Resumo</h3>
+                <p><mark>Model</mark>: Contém tanto entidades (como <mark>User.java</mark>) quanto DTOs (como
+                    <mark>UserDTO.java</mark>, <mark>AuthRequest.java</mark>, e <mark>AuthResponse.java</mark>).</p>
+                <p><mark>Service</mark>: Pode conter múltiplos serviços, como <mark>UserService.java</mark> e
+                    <mark>AuthService.java</mark>, que tratam de diferentes aspectos da lógica de negócios.</p>
+                <p><mark>Controller</mark>: Cada controlador pode gerenciar diferentes aspectos da aplicação, como
+                    <mark>UserController.java</mark> e <mark>AuthController.java</mark>, lidando com operações de
+                    usuários e autenticação, respectivamente.</p>
+                <p>Essa estrutura modularizada ajuda a manter o código organizado e facilita a manutenção, permitindo
+                    que você adicione ou altere funcionalidades sem impactar significativamente outras partes do
+                    sistema.</p>
+            </section>
+
+            <section id="package">
+                <h2>Entendendo a Relação entre Pacotes</h2>
+
+                <h3>Model (Entidade)</h3>
+                <p>Representa os dados que serão armazenados no banco de dados.</p>
+                <ul>
+                    <li><strong>Exemplo</strong>: <mark>User</mark>, que contém os atributos <mark>id</mark>,
+                        <mark>name</mark>, <mark>email</mark> e <mark>password</mark>.
+                    </li>
+                </ul>
+
+                <h3>Repository</h3>
+                <p>Realiza operações no banco de dados. A camada de repository é responsável por ler e gravar
+                    informações.</p>
+                <ul>
+                    <li><strong>Exemplo</strong>: <mark>UserRepository</mark>, que busca e salva usuários.</li>
+                </ul>
+
+                <h3>Service</h3>
+                <p>Implementa a lógica de negócios. A camada de service encapsula a lógica que manipula as entidades e
+                    orquestra as operações.</p>
+                <ul>
+                    <li><strong>Exemplo</strong>: <mark>UserService</mark>, que gerencia operações como criar, listar e
+                        buscar usuários.</li>
+                </ul>
+
+                <h3>Controller</h3>
+                <p>Exponibiliza endpoints RESTful. A camada controller recebe as requisições HTTP, processa os dados e
+                    envia respostas adequadas.</p>
+                <ul>
+                    <li><strong>Exemplo</strong>: <mark>UserController</mark>, que possui endpoints como
+                        <mark>/api/users</mark> para listar e criar usuários.
+                    </li>
+                </ul>
+
+                <h3>Relação entre os pacotes essenciais</h3>
+
+                <ul>
+                    <li><strong>model:</strong> Define as entidades ou objetos de negócio que representam os dados.</li>
+                    <li><strong>repository:</strong> Gerencia a persistência dos dados do <mark>model</mark> no banco de
+                        dados.</li>
+                    <li><strong>service:</strong> Contém a lógica de negócio, manipula os dados e interage com o
+                        <mark>repository</mark>.
+                    </li>
+                    <li><strong>controller:</strong> Exponibiliza endpoints (APIs REST) para interação com clientes
+                        (front-end ou outros sistemas) e chama os métodos do <mark>service</mark>.</li>
+                </ul>
+
+                <h3>Em todo projeto Maven/Spring Boot</h3>
+                <p>Quando você encontrar um projeto desses, é muito comum ver esses quatro pacotes, já que eles formam a
+                    estrutura básica para manter a aplicação organizada e facilmente escalável. Não são "obrigatórios"
+                    tecnicamente (o Spring Boot funciona sem eles), mas são considerados melhores práticas.</p>
+
+                <h3>O pacote DTO é obrigatório?</h3>
+                <p>Não, o pacote <mark>DTO</mark> não é obrigatório como os outros, mas é altamente recomendado em
+                    muitos casos, especialmente em sistemas mais complexos. O uso de DTOs é uma boa prática quando há a
+                    necessidade de transferir dados entre o front-end e o back-end sem expor diretamente as entidades do
+                    banco de dados. Ele ajuda a manter a segurança e a flexibilidade do sistema, pois permite abstrair
+                    os dados que são passados para a interface.</p>
+
+                <p><mark>model</mark>: O <mark>DTO</mark> muitas vezes contém dados derivados do <mark>model</mark>, mas
+                    pode incluir apenas os campos que você deseja expor para o cliente. Por exemplo, a entidade
+                    <mark>User</mark> pode ter um campo <mark>password</mark>, mas o <mark>UserDTO</mark> pode omitir
+                    esse campo ao ser enviado para o cliente, aumentando a segurança.
+                </p>
+
+                <p><mark>controller</mark>: O <mark>controller</mark> utiliza o <mark>DTO</mark> para receber e enviar
+                    dados nas requisições HTTP. Isso garante que apenas os dados necessários sejam enviados, evitando o
+                    envio desnecessário de campos ou dados sensíveis.</p>
+
+                <ul>
+                    <li><strong>Entrada:</strong> O <mark>DTO</mark> pode ser usado para receber dados do cliente (por
+                        exemplo, dados de um formulário).</li>
+                    <li><strong>Saída:</strong> O <mark>DTO</mark> também pode ser utilizado para enviar respostas ao
+                        cliente.</li>
+                </ul>
+
+                <p><mark>service</mark>: O <mark>service</mark> pode converter entre <mark>DTO</mark> e as entidades do
+                    <mark>model</mark>. Por exemplo, ele recebe um <mark>UserDTO</mark> do <mark>controller</mark>,
+                    converte-o em uma entidade <mark>User</mark>, e salva no banco de dados por meio do
+                    <mark>repository</mark>. Ele também pode converter uma entidade em um <mark>DTO</mark> antes de
+                    enviar de volta ao <mark>controller</mark>.
+                </p>
+
+                <p><mark>repository</mark>: O <mark>repository</mark> não lida diretamente com <mark>DTOs</mark>. Ele
+                    interage apenas com as entidades do <mark>model</mark>. A conversão entre entidade e
+                    <mark>DTO</mark> acontece no <mark>service</mark> ou no <mark>controller</mark>.
+                </p>
+
+                <h3>Exemplo prático de uso de DTO:</h3>
+
+                <h4>Entidade User no pacote model:</h4>
+                <pre><code>
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String name;
+    
+    @Email
+    private String email;
+    
+    private String password;
+
+    // Getters e Setters
+}
+                </code></pre>
+
+                <h4>Classe UserDTO no pacote dto:</h4>
+                <pre><code>
+public class UserDTO {
+    private String name;
+    private String email;
+    
+    // Não inclui a senha por razões de segurança
+    // Getters e Setters
+}
+                </code></pre>
+
+                <h4>Controller usando DTO:</h4>
+                <pre><code>
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
+        User user = userService.convertToEntity(userDTO); // Converte o DTO para entidade
+        User savedUser = userService.createUser(user);
+        UserDTO responseDTO = userService.convertToDTO(savedUser); // Converte de volta para DTO
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+}
+                </code></pre>
+
+                <h4>Service lidando com a conversão:</h4>
+                <pre><code>
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public User convertToEntity(UserDTO userDTO) {
+        User user = new User();
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        // Senha seria definida de outra forma
+        return user;
+    }
+
+    public UserDTO convertToDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
+    }
+}
+                </code></pre>
+
+                <h3>Benefícios de usar DTO:</h3>
+                <ul>
+                    <li><strong>Segurança:</strong> Você evita expor campos sensíveis das suas entidades (como senhas).
+                    </li>
+                    <li><strong>Abstração:</strong> Permite que você mude a estrutura das suas entidades sem afetar
+                        diretamente a interface com o cliente.</li>
+                    <li><strong>Simplificação: Você pode reduzir a quantidade de dados enviados, melhorando o
+                            desempenho.</strong></li>
+                    <li><strong>Validação: </strong> Os <mark>DTOs</mark> podem ser usados para validações de entrada
+                        específicas, sem impactar diretamente o modelo de dados.</li>
+                </ul>
+
+                <h3>Conclusão</h3>
+                <p><mark>model</mark>, <mark>repository</mark>, <mark>service</mark> e <mark>controller</mark>: Esses
+                    pacotes são fundamentais em um projeto Spring Boot e sempre estarão presentes para manter uma boa
+                    organização.</p>
+                <p><mark>DTO</mark>: Não é obrigatório, mas é altamente recomendado em situações onde você deseja
+                    proteger suas entidades, otimizar a transferência de dados ou melhorar a segurança.</p>
+            </section>
+
+            <section id="springSecurity">
+                <h2>Fluxo básico de autenticação usando Spring Security</h2>
+                <ul>
+                    <li><strong>Cadastro de usuário:</strong> O usuário se cadastra informando, por exemplo, nome,
+                        email, e senha. A senha é armazenada no banco de dados de forma criptografada.</li>
+                    <li><strong>Login:</strong> O Spring Security valida essas credenciais e, se forem válidas, gera um
+                        token de autenticação (se estiver usando JWT) ou mantém a sessão (autenticação via estado).</li>
+                    <li><strong>Autorização:</strong> Uma vez autenticado, o Spring Security verifica se o usuário tem
+                        permissões para acessar os recursos ou APIs solicitadas.
+                    </li>
+                </ul>
+
+                <h4>Novos pacotes comuns em projetos que usam Spring Security:</h4>
+                <ul>
+                    <li><strong>security:</strong> Contém classes e configurações específicas do Spring Security.</li>
+                    <ul>
+                        <li><strong>config:</strong> Para as classes de configuração de segurança.</li>
+                        <li><strong>filter:</strong> Para as classes de configuração de segurança.</li>
+                        <li><strong>service:</strong> Filtros de autenticação (como JWT, por exemplo).</li>
+                        <li><strong>util:</strong> Para carregar detalhes do usuário e validação de login.</li>
+                    </ul>
+                </ul>
+
+                <h3>Implementação básica de autenticação com email e senha usando Spring Security</h3>
+                <ul>
+                    <li>Dependências necessárias no <mark>pom.xml</mark>:</li>
+                </ul>
+                <p>Adicione as dependências do Spring Security ao seu arquivo <mark>pom.xml</mark>:</p>
+                <pre><code>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-crypto</artifactId>
+</dependency>
+                </code></pre>
+
+                <h4>Criação dos pacotes e classes principais:</h4>
+                <ul>
+                    <li><strong>model:</strong> Contém as entidades do usuário e suas roles (papéis).</li>
+                    <li><strong>repository:</strong> Contém o repositório de usuários para persistência no banco de
+                        dados.</li>
+                    <li><strong>security/config:</strong> Configurações de segurança, onde você define como a aplicação
+                        vai lidar com login, logout, autenticação e autorização.</li>
+                    <li><strong>security/service:</strong> Implementa a lógica de carregamento do usuário durante o
+                        login.</li>
+                    <li><strong>security/util:</strong> Se estiver usando JWT, pode conter a classe para geração e
+                        validação dos tokens.</li>
+                </ul>
+
+                <h4>Exemplo de implementação:</h4>
+
+                <h3>Pacote model:</h3>
+                <h4>Entidade User no pacote model:</h4>
+                <pre><code>
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    private String password;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    // Getters e Setters
+}
+                </code></pre>
+
+                <h4>Entidade Role (papel) no pacote model:</h4>
+                <pre><code>
+@Entity
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String name;
+
+    // Getters e Setters
+}
+                </code></pre>
+
+                <h3>Pacote repository:</h3>
+                <h4>Repositório de usuários (UserRepository):</h4>
+                <pre><code>
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+}
+                </code></pre>
+
+                <h3>Pacote security/service:</h3>
+                <h4>Serviço de detalhes do usuário (CustomUserDetailsService):</h4>
+                <p>Essa classe carrega o usuário a partir do banco de dados e transforma o usuário em uma implementação
+                    de <mark>UserDetails</mark> para o Spring Security.</p>
+                <pre><code>
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
+                mapRolesToAuthorities(user.getRoles()));
+    }
+
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    }
+}
+                </code></pre>
+
+                <h3>Pacote security/config:</h3>
+                <h4>Configuração de segurança (SecurityConfig):</h4>
+                <p>Aqui é onde você define as regras de autenticação e autorização, e como o login/logout será
+                    gerenciado.</p>
+                <pre><code>
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/register", "/login").permitAll() // Permitir acesso a essas URLs sem login
+            .anyRequest().authenticated()
+            .and()
+            .formLogin()
+            .loginPage("/login") // URL do formulário de login
+            .defaultSuccessUrl("/dashboard", true) // Redirecionar ao dashboard após login bem-sucedido
+            .permitAll()
+            .and()
+            .logout()
+            .logoutSuccessUrl("/login?logout")
+            .permitAll();
+    }
+}
+                </code></pre>
+
+                <h3>Pacote security/util (se estiver usando JWT):</h3>
+                <p>Se você optar por usar JWT, crie uma classe para gerar e validar tokens. Aqui está um exemplo básico:
+                </p>
+                <pre><code>
+@Component
+public class JwtUtil {
+
+    private String SECRET_KEY = "secret";
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+}
+                </code></pre>
+
+                <h3>Cadastro de usuário:</h3>
+                <p>Quando um usuário se cadastra, você normalmente precisará criptografar a senha antes de salvar no
+                    banco. Isso pode ser feito diretamente no serviço.</p>
+                <h4>Exemplo de serviço para cadastro de usuário:</h4>
+                <pre><code>
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public User registerNewUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+}
+                </code></pre>
+
+                <h4>Fluxo básico de login com autenticação:</h4>
+                <p>O usuário se cadastra com um email e senha. A senha é criptografada.</p>
+                <p>O usuário realiza o login, enviando o email e a senha.</p>
+                <p>O Spring Security, por meio do <mark>CustomUserDetailsService</mark>, carrega o usuário pelo email,
+                    verifica a senha e autentica o usuário.</p>
+                <p>O usuário autenticado recebe um token JWT (se estiver usando JWT) ou uma sessão ativa.</p>
+                <p>O token é validado em cada requisição subsequente, ou o Spring Security mantém a sessão ativa.</p>
+                <p>Esse é um exemplo básico para começar com Spring Security em um projeto que requer login por email e
+                    senha. Dependendo das necessidades, é possível adicionar recursos como JWT para autenticação
+                    stateless (sem sessão), OAuth2, ou permissões mais complexas baseadas em roles (papéis) e
+                    authorities (autoridades).</p>
+            </section>
+
+            <section id="jwt">
+                <h2>O que é JWT?</h2>
+                <p>Um JWT é um token que é gerado e assinado digitalmente. Ele é composto por três partes principais:
+                </p>
+                <ul>
+                    <li><strong>Header:</strong> Contém informações sobre como o token é gerado (tipo e algoritmo de
+                        assinatura).</li>
+                    <li><strong>Payload: Contém as informações do usuário (claims), como ID, email, e roles.</strong>
+                    </li>
+                    <li><strong>Signature:</strong> A parte que garante a integridade do token e autentica a sua origem.
+                    </li>
+                </ul>
+
+                <h3>Estrutura de um JWT</h3>
+                <h4>Um token JWT tem a seguinte estrutura:</h4>
+                <pre><code>
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                </code></pre>
+                <ul>
+                    <li><strong>Header (codificado em Base64Url):</strong> <mark>{"alg": "HS256", "typ": "JWT"}</mark>
+                    </li>
+                    <li><strong>Payload (codificado em Base64Url):</strong> <mark>{"sub": "1234567890", "name": "John
+                            Doe", "iat": 1516239022}</mark></li>
+                    <li><strong>Signature:</strong> Gerada a partir do header e payload, usando um segredo (ou chave
+                        privada).</li>
+                </ul>
+
+                <h3>Fluxo de Trabalho do JWT</h3>
+                <ul>
+                    <li><strong>Cadastro:</strong> Quando o usuário se cadastra, armazena-se suas informações (ex: email
+                        e senha) no banco de dados. A senha deve ser criptografada usando um algoritmo seguro, como
+                        BCrypt.</li>
+                    <li><strong>Login:</strong> Quando o usuário tenta fazer login, você verifica suas credenciais. Se
+                        forem válidas, você gera um JWT e o envia de volta ao cliente.</li>
+                    <li><strong>Uso do Token:</strong> O cliente armazena o JWT e o envia em todas as requisições
+                        subsequentes, geralmente no cabeçalho <mark>Authorization</mark>.</li>
+                    <li><strong>Validação:</strong> O servidor valida o JWT em cada requisição, verificando a assinatura
+                        e a data de expiração.</li>
+                    <li><strong>Logout:</strong> O logout pode ser feito simplesmente excluindo o token no lado do
+                        cliente (não há necessidade de invalidar o token no servidor).</li>
+                </ul>
+
+                <h3>Implementando JWT com Spring Security</h3>
+                <p>Aqui estão as etapas para implementar o JWT em um projeto Spring Boot.</p>
+                <p>1. Dependências no <mark>pom.xml</mark></p>
+                <h4>Adicione as seguintes dependências ao seu projeto:</h4>
+                <pre><code>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt</artifactId>
+    <version>0.9.1</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>                    
+                </code></pre>
+
+                <h3>Configuração do Spring Security</h3>
+                <h4>No pacote de segurança, crie a classe SecurityConfig:</h4>
+                <pre><code>
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/login", "/register").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .addFilter(new JWTAuthenticationFilter(authenticationManager()));
+    }
+}
+                </code></pre>
+
+                <h3>Gerador de JWT</h3>
+                <h4>Crie uma classe para gerar e validar JWT:</h4>
+                <pre><code>
+@Component
+public class JwtUtil {
+
+    private String SECRET_KEY = "mysecretkey"; // Mantenha esta chave em um lugar seguro!
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Token expira em 10 horas
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
+}
+                </code></pre>
+
+                <h3>Filtro de Autenticação JWT</h3>
+                <h4>Crie um filtro para interceptar as requisições e autenticar o usuário usando o token JWT:</h4>
+                <pre><code>
+public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+    private AuthenticationManager authenticationManager;
+
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        return authenticationManager.authenticate(authenticationToken);
+    }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
+        String token = new JwtUtil().generateToken((UserDetails) authResult.getPrincipal());
+        response.setHeader("Authorization", "Bearer " + token);
+    }
+}
+                </code></pre>
+
+                <h3>Endpoints de Login</h3>
+                <h4>No seu Controller, adicione um endpoint de login que usa o filtro JWT:</h4>
+                <pre><code>
+                    @RestController
+@RequestMapping("/api")
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+            String token = new JwtUtil().generateToken((UserDetails) auth.getPrincipal());
+            return ResponseEntity.ok(new AuthResponse(token));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+        }
+    }
+}
+                </code></pre>
+
+                <h3>Considerações Importantes</h3>
+                <ul>
+                    <li><strong>Armazenamento Seguro da Chave:</strong> Nunca armazene a chave secreta diretamente no
+                        código. Use variáveis de ambiente ou serviços de gerenciamento de segredos.</li>
+                    <li><strong>Configurações de Segurança:</strong> Revise as configurações de segurança regularmente
+                        para garantir que as permissões e autenticações estejam atualizadas.</li>
+                    <li><strong>Expiração e Revogação:</strong> Considere a expiração dos tokens e como lidar com a
+                        revogação de tokens, caso necessário.</li>
+                    <li><strong>Cuidado com Dados Sensíveis:</strong> Evite armazenar dados sensíveis diretamente no
+                        payload do token.</li>
+                </ul>
+
+                <h3>Prática</h3>
+                <h4>Para entender completamente o JWT, pratique implementando:</h4>
+                <ul>
+                    <li>Um sistema de registro de usuários.</li>
+                    <li>Um sistema de login que retorna o JWT.</li>
+                    <li>Proteja endpoints que exigem autenticação usando o token.</li>
+                </ul>
+
+                <p>Quando você implementa JWT (JSON Web Token) em um projeto Spring Boot com Spring Security, alguns
+                    novos pacotes são geralmente criados para organizar o código de maneira eficiente e manter a
+                    separação de preocupações. Aqui estão os principais pacotes que você pode considerar criar ao
+                    integrar o JWT ao seu projeto:</p>
+
+                <h3>Controller</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote contém as classes responsáveis por gerenciar as
+                        requisições HTTP. Ele define os endpoints da API, incluindo o endpoint para login.</li>
+                    <li><strong>Exemplo de Classe:</strong> <mark>AuthController</mark> para gerenciar autenticação e
+                        geração de tokens JWT.</li>
+                </ul>
+
+                <h3>Model (ou DTO)</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Esse pacote pode conter classes que representam os dados que você
+                        deseja enviar ou receber pela API, como objetos de autenticação.</li>
+
+                    <li><strong>Exemplo de Classe:</strong></li>
+                    <ul>
+                        <li><strong>AuthRequest:</strong> representa a solicitação de login, contendo campos como email
+                            e senha.</li>
+                        <li><strong>AuthResponse:</strong> representa a resposta após o login, incluindo o token JWT.
+                        </li>
+                    </ul>
+                </ul>
+
+                <h3>Service</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Contém a lógica de negócios relacionada à autenticação e manipulação
+                        de usuários. Pode incluir métodos para registrar usuários, autenticar e gerar tokens JWT.</li>
+                    <li><strong>Exemplo de Classe:</strong> <mark>AuthService</mark> que lida com a lógica de
+                        autenticação e geração do token.</li>
+                </ul>
+
+                <h3>Security</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote é onde você configura a segurança do aplicativo e
+                        implementa as classes necessárias para o funcionamento do Spring Security com JWT.</li>
+                    <li><strong>Exemplo de Classes:</strong>
+                        <ul>
+                            <li><strong>SecurityConfig:</strong> configurações de segurança do Spring Security.</li>
+                            <li><strong>JwtUtil:</strong> classe responsável pela criação e validação de tokens JWT.
+                            </li>
+                            <li><strong>JWTAuthenticationFilter:</strong> filtro que intercepta as requisições para
+                                autenticação usando JWT.</li>
+                            <li><strong>CustomUserDetailsService:</strong> implementa a lógica para carregar dados do
+                                usuário para autenticação.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Repository (se aplicável)</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Embora o pacote <mark>repository</mark> não seja especificamente
+                        novo, você pode querer ter um repositório para gerenciar entidades relacionadas a usuários, se
+                        ainda não tiver.</li>
+                    <li><strong>Exemplo de Classe:</strong> <mark>UserRepository</mark> que interage com a tabela de
+                        usuários no banco de dados.</li>
+                </ul>
+
+                <h3>Exemplo de Estrutura de Pacotes</h3>
+                <h4>Aqui está um exemplo de como sua estrutura de pacotes pode parecer após a implementação do JWT:</h4>
+                <pre><code>
+src/main/java/
+ └── br/
+     └── edu/
+         └── ifpe/
+             └── seuProjeto/
+                 ├── controller/
+                 │   └── AuthController.java
+                 ├── model/
+                 │   ├── AuthRequest.java
+                 │   └── AuthResponse.java
+                 ├── service/
+                 │   └── AuthService.java
+                 ├── security/
+                 │   ├── SecurityConfig.java
+                 │   ├── JwtUtil.java
+                 │   └── JWTAuthenticationFilter.java
+                 └── repository/
+                     └── UserRepository.java                    
+                </code></pre>
+
+                <h3>Resumo</h3>
+                <p>Esses pacotes ajudam a organizar seu projeto e a manter uma estrutura clara, facilitando a manutenção
+                    e a expansão do sistema. Ao implementar o JWT, você terá classes e pacotes que focam especificamente
+                    na autenticação e segurança, permitindo que a lógica de negócio e a manipulação de dados permaneçam
+                    separadas. Isso melhora a legibilidade e a estrutura do seu código.</p>
+            </section>
+
+            <section id="validation">
+                <h2>Como Funciona o Spring Validation</h2>
+                <ul>
+                    <li><strong>Anotações de Validação:</strong> O Spring oferece várias anotações que você pode usar em
+                        suas classes de modelo (ou DTOs) para definir as regras de validação. Algumas das anotações mais
+                        comuns incluem:</li>
+                    <ul>
+                        <li><strong>@NotNull:</strong> Garante que o valor não seja nulo.</li>
+                        <li><strong>@Size:</strong> Especifica o tamanho mínimo e máximo de uma string.</li>
+                        <li><strong>@Email:</strong> Valida se o formato do email está correto.</li>
+                        <li><strong>@Min e @Max:</strong> Usadas para validar números.</li>
+                    </ul>
+                    <li><strong>Integração com Controllers:</strong> Quando uma solicitação HTTP é recebida, o Spring
+                        pode automaticamente validar os dados de entrada baseados nas anotações que você aplicou nas
+                        classes do modelo. Se a validação falhar, o Spring gera automaticamente um erro que pode ser
+                        tratado no controller.</li>
+                    <li><strong>Tratamento de Erros:</strong> Você pode usar o objeto <mark>BindingResult</mark> no seu
+                        método de controller para capturar erros de validação e tratá-los conforme necessário.</li>
+                </ul>
+
+                <h3>Relacionamento entre os Pacotes</h3>
+                <h4>Aqui está como o Spring Validation se relaciona com os pacotes principais em um projeto Spring Boot:
+                </h4>
+                <h3>Model (ou DTO)</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> Este pacote contém as classes que representam os dados do seu
+                        aplicativo. É aqui que você aplicará as anotações de validação.</li>
+                    <li><strong>Exemplo de Classe:</strong> Se você tem um <mark>UserDTO</mark>, você pode fazer algo
+                        assim:</li>
+                </ul>
+                <pre><code>
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
+public class UserDTO {
+    @NotBlank(message = "Nome é obrigatório")
+    private String name;
+
+    @Email(message = "Email inválido")
+    @NotBlank(message = "Email é obrigatório")
+    private String email;
+
+    // getters e setters
+}
+                </code></pre>
+
+                <h3>Controller</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> O pacote controller processa as requisições HTTP. Aqui você irá usar
+                        o UserDTO e receber as validações aplicadas a ele.</li>
+                    <li>Exemplo de Classe:</li>
+                </ul>
+                <pre><code>
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            // Lógica para tratar erros de validação
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
+
+        // Lógica para registrar o usuário
+        return ResponseEntity.ok("Usuário registrado com sucesso!");
+    }
+}
+                </code></pre>
+
+                <h3>Service</h3>
+                <ul>
+                    <li><strong>Descrição:</strong> A lógica de negócio geralmente não se preocupa diretamente com
+                        validação, pois isso é feito na camada de controller. No entanto, você pode ter um método no
+                        serviço que espera que a validação já tenha sido feita.</li>
+                    <li><strong>Exemplo de Classe:</strong> <mark>UserService</mark> que pode registrar o usuário, mas
+                        não precisa validar os dados novamente, já que isso foi tratado anteriormente no controller.
+                    </li>
+                </ul>
+
+                <h3>Estrutura de Pacotes Exemplo</h3>
+                <h4>Aqui está um exemplo de como sua estrutura de pacotes pode parecer ao integrar o Spring Validation:
+                </h4>
+                <pre><code>
+src/main/java/
+ └── br/
+     └── edu/
+         └── ifpe/
+             └── seuProjeto/
+                 ├── controller/
+                 │   └── UserController.java
+                 ├── model/
+                 │   └── UserDTO.java
+                 ├── service/
+                 │   └── UserService.java
+                 └── repository/
+                     └── UserRepository.java
+            </code></pre>
+
+                <h3>Resumo</h3>
+                <p>O Spring Validation é uma ferramenta poderosa que ajuda a garantir a integridade dos dados em sua
+                    aplicação. Ao integrar a validação em seus modelos e usar o Spring para gerenciá-la nas requisições
+                    HTTP, você pode manter um fluxo de trabalho limpo e eficaz, evitando que dados inválidos sejam
+                    processados. Essa abordagem não só melhora a segurança e a confiabilidade da aplicação, mas também
+                    torna o código mais claro e fácil de manter.</p>
+            </section>
+
+            <section id="type">
+                <h2>Relacionamento de Entidades</h2>
+
+                <h3>Relação Um para Um (1:1)</h3>
+                <p>Neste tipo de relacionamento, uma entidade está diretamente relacionada a outra entidade. Por
+                    exemplo, se cada usuário tem um perfil único.</p>
+                <h4>Exemplo: User e UserProfile</h4>
+                <pre><code>
+import javax.persistence.*;
+
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String email;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
+    // getters e setters
+}
+
+@Entity
+public class UserProfile {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String bio;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    // getters e setters
+}
+                </code></pre>
+
+                <h3>Relação Um para Muitos (1:N)</h3>
+                <p>Neste tipo de relacionamento, uma entidade pode ter várias instâncias de outra entidade. Por exemplo,
+                    um usuário pode ter várias postagens.</p>
+                <h4>Exemplo: User e Post</h4>
+                <pre><code>
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String email;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts;
+
+    // getters e setters
+}
+
+@Entity
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    // getters e setters
+}
+                </code></pre>
+
+                <h3>Relação Muitos para Um (N:1)</h3>
+                <p>Este é o inverso do relacionamento anterior, onde muitas instâncias de uma entidade estão
+                    relacionadas a uma única instância de outra entidade. Por exemplo, várias postagens podem pertencer
+                    a um único usuário.</p>
+                <h4>Exemplo: Post e User</h4>
+                <p>Neste caso, já foi demonstrado no exemplo anterior, mas é apenas a inversão do relacionamento.</p>
+
+                <h3>Relação Muitos para Muitos (N:N)</h3>
+                <p>Neste tipo de relacionamento, várias instâncias de uma entidade podem estar relacionadas a várias
+                    instâncias de outra entidade. Por exemplo, usuários podem participar de vários grupos, e grupos
+                    podem ter vários usuários.</p>
+                <h4>Exemplo: User e Group</h4>
+                <pre><code>
+import javax.persistence.*;
+import java.util.Set;
+
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_group",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<Group> groups;
+
+    // getters e setters
+}
+
+@Entity
+public class Group {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToMany(mappedBy = "groups")
+    private Set<User> users;
+
+    // getters e setters
+}
+                </code></pre>
+
+                <h3>Considerações Importantes</h3>
+                <ul>
+                    <li><strong>Anotações JPA:</strong></li>
+                    <ul>
+                        <li><strong>Entity:</strong> Indica que a classe é uma entidade JPA.</li>
+                        <li><strong>Id:</strong> Indica o identificador da entidade.</li>
+                        <li><strong>GeneratedValue:</strong> Define a estratégia de geração de valores para a chave
+                            primária.</li>
+                        <li><strong>@OneToOne, @OneToMany, @ManyToOne, @ManyToMany: </strong> Definem os tipos de
+                            relacionamento entre as entidades.</li>
+                        <li><strong>@JoinColumn:</strong> Especifica a coluna de junção que relaciona duas tabelas.</li>
+                        <li><strong>@JoinTable:</strong> Define a tabela de junção em um relacionamento muitos para
+                            muitos.</li>
+                    </ul>
+                </ul>
+
+                <h3>Resumo</h3>
+                <p>Esses exemplos mostram como criar relacionamentos entre entidades em um projeto Spring Boot. A
+                    escolha do tipo de relacionamento deve ser feita com base nos requisitos do domínio da sua
+                    aplicação, e as anotações JPA permitem que você defina esses relacionamentos de maneira clara e
+                    concisa.</p>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <h3>Estudos de Desenvolvimento Web</h3>
+            <p>Acompanhe conteúdos sobre desenvolvimento de software, melhores práticas e dicas úteis.</p>
+            <ul class="socials">
+                <li><a href="https://www.facebook.com/robson.albuquerque098/" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="https://www.instagram.com/robson.albuquerque98/" target="_blank"><i class="fa fa-instagram"></i></a></li>
+                <li><a href="https://www.linkedin.com/in/robson-monteiro-de-albuquerque-8b3853230" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Estudos de Desenvolvimento Web | Todos os direitos reservados</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>
