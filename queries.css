@@ -1,0 +1,108 @@
+/* Responsividade para telas médias */
+@media (max-width: 768px) {
+    .header-container h1{
+        font-size: 2.5rem;
+    }
+
+    .header-links {
+        flex-direction: column;
+        margin-right: 1rem;
+    }
+
+    .header-links a {
+        font-size: 1rem;
+    }
+
+    .container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    /* Sidebar ocupa a tela inteira */
+    .sidebar {
+        width: 100%;
+        right: -100%; /* Esconde a sidebar completamente para fora da tela */
+    }
+
+    .sidebar.active {
+        right: 0; /* Faz a sidebar cobrir a tela inteira quando aberta */
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+
+    section h3 {
+        font-size: 1.9rem;
+    }
+
+    section h4 {
+        font-size: 1.8rem;
+    }
+
+    section p {
+        margin-bottom: 8px;
+        font-size: 1.7rem;
+    }
+
+    section pre {
+        padding: 8px;
+    }
+    section code {
+        font-size: 1.3rem;
+    }
+
+    .footer-content h3 {
+        font-size: 20px;
+    }
+
+    .footer-content p {
+        font-size: 14px;
+    }
+
+    .footer-content .socials li {
+        margin: 0 5px;
+    }
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 480px) {
+    .container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .content {
+        width: 100%;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    section h2 {
+        font-size: 1.9rem;
+    }
+
+    section h3 {
+        font-size: 1.8rem;
+    }
+
+    section h4 {
+        font-size: 1.7rem;
+    }
+
+    section p {
+        margin-bottom: 8px;
+        font-size: 1.6rem;
+    }
+
+    section code {
+        font-size: 1.2rem;
+    }
+
+    section ul li {
+        font-size: 1.5rem;
+    }
+}

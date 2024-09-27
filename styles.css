@@ -1,0 +1,292 @@
+:root {
+    font-size: 62.5%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+    /* Definindo a imagem de fundo */
+    background: #222 url('photo.jpg') center no-repeat fixed; /* Substitua pelo caminho correto da imagem */
+    background-size: cover; /* Faz com que a imagem cubra toda a área */
+}
+
+/* Estilização do Header */
+.header-container {
+    background: linear-gradient(135deg, #4A90E2, #50C9C3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 2.8rem;
+}
+
+/* Links do header */
+.header-links {
+    display: flex;
+    gap: 20px; /* Espaço entre os links */
+}
+
+.header-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.6rem;
+    transition: color 0.3s ease;
+}
+
+.header-links a:hover {
+    color: #ffeb3b; /* Efeito de hover para os links */
+}
+
+/* Main container for sidebar and content */
+.container {
+    display: flex;
+    flex: 1;
+}
+
+/* Botão de menu hamburger */
+.menu-toggle {
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background-color: #f0f0f0;
+}
+
+/* Sidebar como menu oculto inicialmente */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Esconde a sidebar fora da tela */
+    width: 250px;
+    height: 100vh;
+    background: linear-gradient(135deg, #4A90E2, #50C9C3);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px 0 0 10px;
+    transition: right 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
+}
+
+/* Exibir menu ao clicar */
+.sidebar.active {
+    right: 0; /* Quando a classe active for adicionada, a sidebar será exibida */
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 20px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+}
+
+.sidebar ul li a:hover {
+    color: #007bff;
+}
+
+/* Content Area */
+.content {
+    flex: 1;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para a seção  */
+section {
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    color: #4A90E2;
+    font-size: 2.3rem;
+    margin-bottom: 10px;
+}
+
+/* Estilo para os subtítulos */
+section h3 {
+    color: #50C9C3;
+    font-size: 2rem;
+    margin-bottom: 8px;
+    text-decoration: underline;
+}
+
+/* Estilo para os subtítulos internos */
+section h4 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+section p {
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+    line-height: 1.6;
+}
+
+section mark {
+    background-color: #f4f4f4;
+    color: #50C9C3;
+    font-weight: bold;
+}
+
+/* Estilo para os blocos de código e pre */
+section pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 5px solid #4A90E2;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+section code {
+    background-color: #f4f4f4;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+/* Estilo para listas */
+section ul {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+section ul li {
+    margin-bottom: 10px;
+    list-style-type: disc;
+    color: #333; /* Cor do texto */
+    font-size: 1.6rem;
+}
+
+section ul li::marker {
+    color: #4A90E2; /* Cor do marcador da lista */
+    font-weight: bold;
+}
+
+section ul ul li {
+    list-style-type: circle;
+}
+
+section ul ul li:nth-child(1) {
+    margin-top: 10px;
+}
+
+/* Estilizando o link dentro dos itens da lista */
+section ul li a {
+    color: #4A90E2; /* Cor azul para o link */
+    font-weight: bold; /* Negrito para o texto do link */
+    text-decoration: none; /* Remove o sublinhado padrão */
+    border-bottom: 2px solid transparent; /* Adiciona uma linha inferior invisível */
+    transition: border-bottom 0.3s ease, color 0.3s ease; /* Transição suave para o hover */
+}
+
+section ul li a:hover {
+    color: #50C9C3; /* Muda a cor do link ao passar o mouse */
+    border-bottom: 2px solid #50C9C3; /* Mostra uma linha inferior verde-água no hover */
+}
+
+section#step1, section#step2, section#order, section#package, section#springSecurity, section#jwt, section#validation, section#type {
+    padding: 20px;
+}
+
+/* Estilos para o rodapé */
+
+footer {
+    background-color: #222;
+    color: #fff;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.footer-content h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.footer-content p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.footer-content .socials {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.footer-content .socials li {
+    margin: 0 10px;
+}
+
+.footer-content .socials li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 20px;
+    transition: color 0.3s ease;
+}
+
+.footer-content .socials li a:hover {
+    color: #4caf50; /* Cor de destaque ao passar o mouse */
+}
+
+.footer-bottom {
+    background-color: #111;
+    padding: 20px 0;
+    margin-top: 20px;
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 14px;
+    color: #aaa;
+}
