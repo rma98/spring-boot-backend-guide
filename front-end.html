@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudos de Desenvolvimento Web</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="queries.css">
+    <link rel="shortcut icon" href="ico/favicon.ico" type="image/x-icon">
+    <script src="https://kit.fontawesome.com/29dd473d90.js" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9360124149047745"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Estudos de Desenvolvimento Web</h1>
+            <nav class="header-links">
+                <a href="index.html">Back-End</a> <!-- Link para a página atual -->
+                <a href="front-end.html">Front-End</a> <!-- Link para a nova página -->
+            </nav>
+            <button class="menu-toggle" aria-label="Abrir Menu">&#9776;</button> <!-- Botão de Menu -->
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#createproject">Criando o Projeto Vue.js com Vite</a></li>
+                <li><a href="#organization">Organizando a Estrutura de Pastas</a></li>
+                <li><a href="#set">Configurando o Router</a></li>
+                <li><a href="#createpage">Criando as Páginas e Componentes Básicos</a></li>
+                <li><a href="#execute">Executar e Testar</a></li>
+                <li><a href="#jwt">O que é JWT?</a></li>
+                <li><a href="#validation">Spring Validation</a></li>
+                <li><a href="#type">Relacionamento de entidades</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="container">
+        <main class="content">
+            <section id="createproject">
+                <h2>Passo 1: Criando o Projeto Vue.js com Vite</h2>
+                <h4>Navegue até o diretório que você criou:</h4>
+                <pre><code>
+cd seudiretório                    
+                </code></pre>
+                <h4>Crie o projeto Vue.js usando Vite: Execute o comando para iniciar o projeto com o Vite:</h4>
+                <pre><code>
+npm create vite                    
+                </code></pre>
+                <ul>
+                    <li><strong>Nome do Projeto:</strong> Será solicitado um nome para o projeto. Você pode nomeá-lo conforme preferir, por exemplo: gerenciamento-salas.</li>
+                    <li><strong>Selecione a Framework:</strong> Selecione Vue como o framework.</li>
+                    <li><strong>Selecione a variante:</strong> Escolha Vue (sem TypeScript por enquanto, mas você pode optar por Vue + TypeScript se quiser usar TS).</li>
+                    <li><strong>Instale as dependências:</strong> Após a criação do projeto, entre na pasta do projeto e instale as dependências:</li>
+                </ul>
+                <pre><code>
+cd gerenciamento-salas
+                </code></pre>
+                <pre><code>
+npm install                    
+                </code></pre>
+                <h4>Execute o projeto:</h4>
+                <pre><code>
+npm run dev
+                </code></pre>
+                <p>Isso deve abrir a aplicação Vue.js padrão no navegador.</p>
+            </section>
+
+            <section id="organization">
+                <h2>Passo 2: Organizando a Estrutura de Pastas</h2>
+                <p>Com o projeto criado, vamos organizar as pastas para seu sistema de gerenciamento de salas. Aqui está uma sugestão para organizar as páginas e componentes:</p>
+                <ul>
+                    <li><strong>Estrutura Inicial de Diretórios:</strong> Abaixo está um esboço de como você pode estruturar o projeto de acordo com as funcionalidades mencionadas.</li>
+                </ul>
+                <pre><code>
+gerenciamento-salas/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── form/
+│   │   │   ├── LoginForm.vue
+│   │   │   ├── RegisterForm.vue
+│   │   └── common/
+│   │       ├── Navbar.vue
+│   │       ├── Sidebar.vue
+│   ├── pages/
+│   │   ├── Home.vue
+│   │   ├── Login.vue
+│   │   ├── Register.vue
+│   │   ├── VisualizarSala.vue
+│   │   ├── VisualizarLaboratorio.vue
+│   │   ├── AdicionarSala.vue
+│   │   ├── AdicionarLaboratorio.vue
+│   │   ├── AdicionarRecurso.vue
+│   ├── router/
+│   │   └── index.js
+│   ├── store/
+│   │   └── index.js
+│   ├── App.vue
+│   └── main.js
+├── package.json
+└── vite.config.js
+                </code></pre>
+                <ul>
+                    <li><strong>Explicação das Pastas:</strong></li>
+                    <ul>
+                        <li><strong>components/:</strong> Contém componentes reutilizáveis. Por exemplo, o Navbar.vue para o menu de navegação, o Sidebar.vue para a barra lateral e componentes de formulário (como login e registro).</li>
+                        <li><strong>pages/:</strong> Contém as páginas principais do projeto, cada uma representando uma funcionalidade (login, registro, visualização e adição de salas e laboratórios).
+                        </li>
+                        <li><strong>router/:</strong> Contém a configuração de rotas para navegar entre as páginas do sistema.</li>
+                        <li><strong>store/:</strong> Contém o estado global da aplicação (se usar Vuex ou Pinia para gerenciamento de estado).</li>
+                    </ul>
+                </ul>
+            </section>
+
+            <section id="set">
+                <h2>Passo 3: Configurando o Router</h2>
+                <p>Para gerenciar as rotas entre as páginas (como login, home, etc.), precisamos configurar o vue-router.</p>
+                <ul>
+                    <li><strong>Instalar o vue-router:</strong> No diretório do projeto, rode:</li>
+                </ul>
+                <pre><code>
+npm install vue-router
+                </code></pre>
+                <ul>
+                    <li><strong>Configurar o router:</strong> Crie o arquivo src/router/index.js com a seguinte configuração básica:</li>
+                </ul>
+                <pre><code>
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../pages/Home.vue';
+import Login from '../pages/Login.vue';
+import Register from '../pages/Register.vue';
+import VisualizarSala from '../pages/VisualizarSala.vue';
+import VisualizarLaboratorio from '../pages/VisualizarLaboratorio.vue';
+import AdicionarSala from '../pages/AdicionarSala.vue';
+import AdicionarLaboratorio from '../pages/AdicionarLaboratorio.vue';
+import AdicionarRecurso from '../pages/AdicionarRecurso.vue';
+
+const routes = [
+  { path: '/', name: 'Home', component: Home },
+  { path: '/login', name: 'Login', component: Login },
+  { path: '/register', name: 'Register', component: Register },
+  { path: '/visualizar-sala', name: 'VisualizarSala', component: VisualizarSala },
+  { path: '/visualizar-laboratorio', name: 'VisualizarLaboratorio', component: VisualizarLaboratorio },
+  { path: '/adicionar-sala', name: 'AdicionarSala', component: AdicionarSala },
+  { path: '/adicionar-laboratorio', name: 'AdicionarLaboratorio', component: AdicionarLaboratorio },
+  { path: '/adicionar-recurso', name: 'AdicionarRecurso', component: AdicionarRecurso },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;
+                </code></pre>
+                <ul>
+                    <li><strong>Atualizar o main.js para usar o router:</strong> No arquivo src/main.js, importe o router e configure a aplicação para usá-lo:</li>
+                </ul>
+                <pre><code>
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+
+createApp(App)
+  .use(router)
+  .mount('#app');
+                </code></pre>
+            </section>
+
+            <section id="createpage">
+                <h2>Passo 4: Criando as Páginas e Componentes Básicos</h2>
+                <ul>
+                    <li><strong>Exemplo de Página de Login (Login.vue):</strong>  Crie o arquivo src/pages/Login.vue com um exemplo básico de formulário de login.</li>
+                    <li><strong>Exemplo de Componente de Formulário de Login (LoginForm.vue):</strong> Crie o arquivo src/components/form/LoginForm.vue.</li>
+                </ul>
+            </section>
+
+            <section id="execute">
+                <h2>Passo 5: Executar e Testar</h2>
+                <p>Depois de configurar essas páginas e componentes, rode novamente o projeto para verificar se tudo está funcionando:</p>
+                <pre><code>
+npm run dev
+                </code></pre>
+            </section>
+
+            <section id="script">
+                <h2>Script</h2>
+                <pre><code>
+set dir=.\projeto
+set nomeProjeto=gerenciamento-salas
+mkdir %dir% && cd %dir% && npm create vite@latest %nomeProjeto% -- --template vue
+                </code></pre>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <h3>Estudos de Desenvolvimento Web</h3>
+            <p>Acompanhe conteúdos sobre desenvolvimento de software, melhores práticas e dicas úteis.</p>
+            <ul class="socials">
+                <li><a href="https://www.facebook.com/robson.albuquerque098/" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="https://www.instagram.com/robson.albuquerque98/" target="_blank"><i class="fa fa-instagram"></i></a></li>
+                <li><a href="https://www.linkedin.com/in/robson-monteiro-de-albuquerque-8b3853230" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Estudos de Desenvolvimento Web | Todos os direitos reservados</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>
