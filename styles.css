@@ -226,7 +226,7 @@ section ul li a:hover {
     border-bottom: 2px solid #50C9C3; /* Mostra uma linha inferior verde-água no hover */
 }
 
-section#step1, section#step2, section#order, section#package, section#springSecurity, section#jwt, section#validation, section#type, section#createproject, section#organization, section#set, section#createpage, section#execute, section#script {
+section#step1, section#step2, section#order, section#package, section#springSecurity, section#jwt, section#validation, section#type, section#createproject, section#organization, section#set, section#createpage, section#execute, section#file, section#optionalfile, section#globalstyle, section#axios {
     padding: 20px;
 }
 
