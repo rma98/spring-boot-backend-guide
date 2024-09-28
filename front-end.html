@@ -33,9 +33,10 @@
                 <li><a href="#set">Configurando o Router</a></li>
                 <li><a href="#createpage">Criando as Páginas e Componentes Básicos</a></li>
                 <li><a href="#execute">Executar e Testar</a></li>
-                <li><a href="#jwt">O que é JWT?</a></li>
-                <li><a href="#validation">Spring Validation</a></li>
-                <li><a href="#type">Relacionamento de entidades</a></li>
+                <li><a href="#file">Arquivos e Trechos para Remover ou Modificar</a></li>
+                <li><a href="#optionalfile">Arquivos Opcionalmente Removíveis</a></li>
+                <li><a href="#globalstyle">Arquivo de Estilos Globais</a></li>
+                <li><a href="#axios">Axios</a></li>
             </ul>
         </nav>
     </aside>
@@ -190,14 +191,161 @@ npm run dev
                 </code></pre>
             </section>
 
-            <section id="script">
+            <section id="file">
+                <h2>Arquivos e Trechos para Remover ou Modificar</h2>
+                <p>Remover o conteúdo de exemplo em <mark>App.vue</mark>: O arquivo <mark>App.vue</mark> geralmente contém código de exemplo e estilos que não são relevantes para o seu projeto. Você pode limpar o conteúdo e manter apenas uma estrutura básica.</p>
+                <p>Arquivo: <mark>src/App.vue</mark></p>
+                <p>Remover o componente de exemplo <mark>HelloWorld.vue</mark>: Por padrão, o Vite cria um componente chamado <mark>HelloWorld.vue</mark> como exemplo. Ele pode ser removido, já que não será necessário.</p>
+                <p>Arquivo: <mark>src/components/HelloWorld.vue</mark></p>
+                <ul>
+                    <li><strong>Ação:</strong> Exclua o arquivo, pois ele é apenas um exemplo.</li>
+                </ul>
+                <p>Remover o conteúdo da pasta <mark>assets/</mark>: A pasta <mark>assets/</mark> contém imagens e arquivos de exemplo que o Vite coloca por padrão (como o logotipo do Vue). Se você não for utilizar, pode remover esses arquivos.</p>
+                <p>Arquivos: Imagens e recursos na pasta <mark>src/assets/</mark>.</p>
+                <ul>
+                    <li><strong>Ação:</strong> Exclua ou substitua esses arquivos conforme necessário.</li>
+                </ul>
+                <p>Remover importações desnecessárias em <mark>main.js</mark>: O arquivo <mark>main.js</mark> pode conter algumas importações de estilos ou de componentes que foram removidos.</p>
+                <p>Arquivo: <mark>src/main.js</mark></p>
+                <ul>
+                    <li><strong>Modificação:</strong> Certifique-se de que ele esteja limpo e importe apenas o necessário, como o Vue e o Router.</li>
+                </ul>
+                <p>Explicação: Essa configuração mínima permite que a aplicação inicie com o roteador (para navegação entre páginas) e o componente principal <mark>App.vue</mark>.</p>
+                <p>Excluir estilos padrão no <mark>App.vue</mark>: O arquivo <mark>App.vue</mark> pode incluir estilos padrão que não são necessários, como estilos globais de exemplo. Limpe esses estilos para começar com uma base mais limpa.</p>
+                <p>Arquivo: <mark>src/App.vue</mark></p>
+                <ul>
+                    <li><strong>Ação:</strong> Exclua quaisquer estilos desnecessários, especialmente os que vêm com exemplos.</li>
+                </ul>
+                <p>Ajustar o título no <mark>index.html</mark>: O arquivo <mark>index.html</mark> gerado pelo Vite contém um título padrão ("Vite App"). Você pode alterar isso para refletir o nome do seu projeto.</p>
+                <p>Arquivo: <mark>index.html</mark></p>
+                <ul>
+                    <li><strong>Explicação:</strong> Atualizar o título melhora a identificação da aplicação quando for acessada no navegador.</li>
+                </ul>
+            </section>
+
+            <section id="optionalfile">
+                <h2>Arquivos Opcionalmente Removíveis</h2>
+                <ul>
+                    <li><strong>Remover arquivos de configuração desnecessários (opcional):</strong> Dependendo das ferramentas que você utilizará, pode ser que alguns arquivos de configuração não sejam necessários para o seu projeto. Por exemplo:</li>
+                    <ul>
+                        <li><strong>vite.svg:</strong> Se você não for usar a logo do Vite ou imagens SVG.</li>
+                        <li><strong>public/vite.svg:</strong> Logo padrão do Vite que pode ser removida.</li>
+                    </ul>
+                    <li><strong>Ajustar ou remover diretivas de ESLint/Prettier (opcional):</strong> Caso o projeto tenha configurações de linting (como ESLint ou Prettier) geradas automaticamente, verifique se os padrões estão de acordo com o que você prefere. Caso contrário, ajuste ou remova as configurações.</li>
+                    <ul>
+                        <li><strong>Arquivos:</strong> <mark>.eslintrc.js</mark>, <mark>.prettierrc</mark></li>
+                        <li><strong>Ação:</strong> Ajuste ou remova conforme suas preferências de estilo de código.</li>
+                    </ul>
+                </ul>
+                <h3>Recapitulando</h3>
+                <p>Remover arquivos de exemplo: <mark>HelloWorld.vue</mark> e imagens da pasta <mark>assets/</mark>.</p>
+                <p>Limpar o <mark>App.vue</mark>: Manter uma estrutura mínima.</p>
+                <p>Ajustar o <mark>main.js</mark>: Garantir que ele só tenha as importações necessárias.</p>
+                <p>Modificar o título no <mark>index.html</mark>: Altere para refletir o nome do projeto.</p>
+                <p>Verificar e remover configurações de linting ou ferramentas não utilizadas.</p>
+                <p>Com esses ajustes, seu projeto Vue.js estará mais limpo e pronto para iniciar o desenvolvimento das funcionalidades que você descreveu.</p>
+            </section>
+            
+            <section id="globalstyle">
+                <h2>Crie um Arquivo de Estilos Globais</h2>
+                <h4>Crie um arquivo CSS para estilos globais:</h4>
+                <p>Na pasta <mark>src/assets/styles/</mark>, crie um arquivo chamado <mark>global.css</mark>. Você pode ajustar o caminho conforme sua estrutura de diretórios.</p>
+                <h4>Estrutura do diretório:</h4>
+                <pre><code>
+src/
+├── assets/
+│   └── styles/
+│       └── global.css
+├── components/
+├── views/
+└── main.js
+                </code></pre>
+                <h4>Adicione estilos ao global.css:</h4>
+                <pre><code>
+/* src/assets/styles/global.css */
+
+/* Estilos globais */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f7f7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Adicione mais estilos globais conforme necessário */                                        
+                </code></pre>
+                <h3>Importe o Arquivo de Estilos no main.js</h3>
+                <p>Abra o arquivo <mark>main.js</mark> localizado em <mark>src/main.js</mark>.</p>
+                <p>Importe o arquivo <mark>global.css</mark> no início do arquivo <mark>main.js</mark>:</p>
+                <pre><code>
+// src/main.js
+
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+
+// Importa os estilos globais
+import './assets/styles/global.css';
+
+const app = createApp(App);
+
+app.use(router);
+
+app.mount('#app');
+                </code></pre>
+                <h3>Resultado</h3>
+                <p>Agora, qualquer estilo definido no <mark>global.css</mark> será aplicado a toda a aplicação. Por exemplo, a fonte padrão e as cores de link definidos no <mark>global.css</mark> aparecerão em todos os componentes da aplicação, a menos que sobrescritos por estilos específicos dentro dos componentes.</p>
+                <h3>Conclusão</h3>
+                <p>Arquivo <mark>global.css</mark>: Contém estilos que devem ser aplicados a toda a aplicação.</p>
+                <p>Importação em <mark>main.js</mark>: Garante que os estilos globais sejam carregados quando a aplicação é inicializada.</p>
+                <p>Seguindo esses passos, você mantém a aplicação organizada e garante que os estilos globais sejam aplicados consistentemente em toda a aplicação Vue.js.</p>
+            </section>
+
+            <section id="axios">
+                <h2>Certifique-se de que o axios está instalado</h2>
+                <p>Verifique se o pacote <mark>axios</mark> está instalado no seu projeto. Caso não esteja, você pode instalá-lo usando o seguinte comando:</p>
+                <pre><code>
+npm install axios
+                </code></pre>
+                <h3>Verifique a Importação</h3>
+                <p>Certifique-se de que você está importando o axios corretamente no seu componente. A importação deve ser:</p>
+                <pre><code>
+import axios from 'axios';                    
+                </code></pre>
+                <h3>Verifique a Configuração do vite.config.js</h3>
+                <p>Se você estiver usando o Vite, pode haver um problema com a configuração do Vite. Verifique se a configuração do seu <mark>vite.config.js</mark> está correta e se não há problemas com a resolução de módulos.</p>
+                <h3>Verifique se o axios está listado em package.json</h3>
+                <p>Abra seu <mark>package.json</mark> e verifique se o axios está listado na seção de dependências:</p>
+                <pre><code>
+"dependencies": {
+  "axios": "^x.x.x", // Verifique se a versão está listada
+  ...
+}
+                </code></pre>
+            </section>
+
+            <!-- <section id="script">
                 <h2>Script</h2>
                 <pre><code>
 set dir=.\projeto
 set nomeProjeto=gerenciamento-salas
 mkdir %dir% && cd %dir% && npm create vite@latest %nomeProjeto% -- --template vue
                 </code></pre>
-            </section>
+            </section> -->
         </main>
     </div>
 
